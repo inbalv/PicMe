@@ -1,5 +1,19 @@
 package com.inbalv.intel.picme;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +25,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,118 +46,48 @@ public class TopicActivity extends AppCompatActivity {
     private ArrayAdapter arrayAdapter = null;
 
     private String[] blogTitles;
+    ImageView image=(ImageView) findViewById(R.id.topic1);
+    ImageView[] images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
         gridView = (GridView) findViewById(R.id.topicGrid);
+        String imageTag="love";
+        String apiKey ="7cac09213fb9d08d6efbc2aeb8a3f223";
+        String secret="a5f141a334b64a27";
+       // final String baseUrl="https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags="+imageTag+"&per_page=9" ;
+        final String baseUrl="https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
+        OkHttpClient client =new OkHttpClient();
+        Request request = new Request.Builder().url(baseUrl).build();
 
-        final String url = "http://javatechig.com/api/get_category_posts/?dev=1&slug=android";
+        Call call =client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
 
-        new AsyncHttpTask().execute(url);
-    }
+            }
 
-    public class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
+            @Override
+            public void onResponse(Response response) throws IOException {
+                try {
+                    if (response.isSuccessful()) {
+                        Log.v(TAG,response.body().string( ));
+                        InputStream in= (InputStream) new URL(response.body().toString()).getContent();
+                        Bitmap bitmap= BitmapFactory.decodeStream(in);
 
-        @Override
-        protected Integer doInBackground(String... params) {
-            InputStream inputStream = null;
+                        in.close();
+                       image.setImageBitmap(bitmap);
 
-            HttpURLConnection urlConnection = null;
 
-            Integer result = 0;
-            try {
-                /* forming th java.net.URL object */
-                URL url = new URL(params[0]);
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-
-                 /* optional request header */
-                urlConnection.setRequestProperty("Content-Type", "application/json");
-
-                /* optional request header */
-                urlConnection.setRequestProperty("Accept", "application/json");
-
-                /* for Get request */
-                urlConnection.setRequestMethod("GET");
-
-                int statusCode = urlConnection.getResponseCode();
-
-                /* 200 represents HTTP OK */
-                if (statusCode ==  200) {
-
-                    inputStream = new BufferedInputStream(urlConnection.getInputStream());
-
-                    String response = convertInputStreamToString(inputStream);
-
-                    parseResult(response);
-
-                    result = 1; // Successful
-
-                }else{
-                    result = 0; //"Failed to fetch data!";
+                    }
+                }catch (IOException e){
+                    Log.e(TAG,"Exception caught", e);
                 }
 
-            } catch (Exception e) {
-                Log.d(TAG, e.getLocalizedMessage());
             }
-
-            return result; //"Failed to fetch data!";
-        }
-
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            /* Download complete. Lets update UI */
-
-            if(result == 1){
-
-                arrayAdapter = new ArrayAdapter(TopicActivity.this, android.R.layout.simple_list_item_1, blogTitles);
-
-                gridView.setAdapter(arrayAdapter);
-            }else{
-                Log.e(TAG, "Failed to fetch data!");
-            }
-        }
-    }
-    private String convertInputStreamToString(InputStream inputStream) throws IOException {
-
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-
-        String line = "";
-        String result = "";
-
-        while((line = bufferedReader.readLine()) != null){
-            result += line;
-        }
-
-            /* Close Stream */
-        if(null!=inputStream){
-            inputStream.close();
-        }
-
-        return result;
-    }
-    private void parseResult(String result) {
-
-        try{
-            JSONObject response = new JSONObject(result);
-
-            JSONArray posts = response.optJSONArray("posts");
-
-            blogTitles = new String[posts.length()];
-
-            for(int i=0; i< posts.length();i++ ){
-                JSONObject post = posts.optJSONObject(i);
-                String title = post.optString("title");
-
-                blogTitles[i] = title;
-            }
-
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
+        });
     }
 
     @Override
@@ -151,8 +96,8 @@ public class TopicActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_topic, menu);
         return true;
     }
-
     @Override
+
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long

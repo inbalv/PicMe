@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.inbalv.intel.picme" >
+
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,7 +22,10 @@
             android:name=".TopicActivity"
             android:label="@string/title_activity_topic" >
         </activity>
-
+        <activity
+            android:name=".PicTopic"
+            android:label="@string/title_activity_pic_topic" >
+        </activity>
     </application>
 
 </manifest>
