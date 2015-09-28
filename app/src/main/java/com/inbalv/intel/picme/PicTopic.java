@@ -1,5 +1,6 @@
 package com.inbalv.intel.picme;
 
+import android.app.ListActivity;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -19,6 +20,7 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.inbalv.intel.picme.model.PictureInfo;
+import com.inbalv.intel.picme.parsers.PicJSONParser;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,9 +28,8 @@ import java.util.List;
 
 import javax.xml.transform.Result;
 
-public class PicTopic extends AppCompatActivity {
-    TextView output;
-    Button myTaskButton;
+public class PicTopic extends ListActivity {
+
     ProgressBar pb;
     List<MyTask> tasks;
     List<PictureInfo> pictureList;
@@ -38,9 +39,8 @@ public class PicTopic extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pic_topic);
-        output = (TextView) findViewById(R.id.textView);
-        myTaskButton = (Button) findViewById(R.id.myTask);
-        output.setMovementMethod(new ScrollingMovementMethod());
+
+
        //final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
 
 
@@ -62,14 +62,21 @@ public class PicTopic extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (item.getItemId()== R.id.action_settings) {
+            if (isOnline()) {
+                requestData(baseUrl);
+            }
+            else {
+                Toast.makeText(this, "Network isn't available", Toast.LENGTH_LONG).show();
+            }
+
+
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     protected boolean isOnline() {
@@ -87,7 +94,7 @@ public class PicTopic extends AppCompatActivity {
     class MyTask extends AsyncTask<String, String, String> {
         @Override
         protected void onPreExecute() {
-            updateDisplay("starting task");
+      //      updateDisplay("starting task");
             if (tasks.size() == 0) {
                 Log.i("PreExceute", "On pre Exceute......");
                 pb.setVisibility(View.VISIBLE);
@@ -102,11 +109,12 @@ public class PicTopic extends AppCompatActivity {
         }
         @Override
         protected void onProgressUpdate(String... values) {
-            updateDisplay(values[0]);
+   //         updateDisplay(values[0]);
         }
         @Override
         protected void onPostExecute(String result) {
-            updateDisplay(result);
+            pictureList= PicJSONParser.parseFeed(result);
+            updateDisplay();
             tasks.remove(this);
             if (tasks.size() == 0) {
                 Log.i("PostExceute", result);
@@ -119,22 +127,17 @@ public class PicTopic extends AppCompatActivity {
 
     }
 
-    public void doMyTask(View view) {
-        if (isOnline()) {
-            requestData(baseUrl);
-        }
-        else {
-            Toast.makeText(this, "Network isn't available", Toast.LENGTH_LONG).show();
-        }
-        updateDisplay("My Task");
-    }
+
 
     private void requestData(String uri) {
         MyTask task = new MyTask();
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,uri);
     }
 
-    public void updateDisplay(String message) {
-output.append(message +"\n");
-    }
-}
+    protected void updateDisplay() {
+    PicAdaptor adapter=new PicAdaptor(this,R.layout.item_pic, pictureList);
+        setListAdapter(adapter);
+
+            }
+        };
+

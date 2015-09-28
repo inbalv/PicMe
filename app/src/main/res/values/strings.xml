@@ -2,7 +2,8 @@
     <string name="app_name">PicMe</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Upload</string>
     <string name="title_activity_topic">TopicActivity</string>
     <string name="title_activity_pic_topic">PicTopic</string>
+    <string name="pic_name_palceholder">Picture</string>
 </resources>
