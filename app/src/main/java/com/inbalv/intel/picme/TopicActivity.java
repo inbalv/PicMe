@@ -57,7 +57,7 @@ public class TopicActivity extends AppCompatActivity {
         String imageTag="love";
         String apiKey ="7cac09213fb9d08d6efbc2aeb8a3f223";
         String secret="a5f141a334b64a27";
-       // final String baseUrl="https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags="+imageTag+"&per_page=9" ;
+       // final String baseUrl="https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags="+imageTag+"&per_page=1" ;
         final String baseUrl="https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
         OkHttpClient client =new OkHttpClient();
         Request request = new Request.Builder().url(baseUrl).build();
