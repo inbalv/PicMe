@@ -68,6 +68,7 @@ public class PicTopic extends ListActivity {
         if (item.getItemId()== R.id.action_settings) {
             if (isOnline()) {
                 requestData(baseUrl);
+
             }
             else {
                 Toast.makeText(this, "Network isn't available", Toast.LENGTH_LONG).show();
