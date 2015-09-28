@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         String[] Topics={"Home","Love","Food","Nature","Sea","Safari"};
-        final Intent topicInt = new Intent(this, TopicActivity.class);
+        final Intent topicInt = new Intent(this, PicTopic.class);
       // ListAdapter adapter=new CustomAdaptor(this,Topics);
        ListAdapter adapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Topics);
         ListView topicList=(ListView) findViewById(R.id.topicList);

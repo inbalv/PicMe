@@ -1,6 +1,9 @@
 package com.inbalv.intel.picme;
 
 import android.content.AsyncTaskLoader;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,24 +11,42 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.os.AsyncTask;
+import android.widget.Toast;
+
+import com.inbalv.intel.picme.model.PictureInfo;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.transform.Result;
 
 public class PicTopic extends AppCompatActivity {
     TextView output;
+    Button myTaskButton;
+    ProgressBar pb;
+    List<MyTask> tasks;
+    List<PictureInfo> pictureList;
+    final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pic_topic);
-        output=(TextView) findViewById(R.id.textView);
+        output = (TextView) findViewById(R.id.textView);
+        myTaskButton = (Button) findViewById(R.id.myTask);
         output.setMovementMethod(new ScrollingMovementMethod());
-        final String baseUrl="https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
-        //URL url=new URL(baseUrl);
+       //final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
+
+
+        pb = (ProgressBar) findViewById(R.id.progressBar1);
+        pb.setVisibility(View.INVISIBLE);
+        tasks = new ArrayList<>();
 
     }
 
@@ -51,23 +72,69 @@ public class PicTopic extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    class TestAsync extends AsyncTask<String, String, String>
-    {
+    protected boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo!=null && netInfo.isConnectedOrConnecting()){
+            return true;
+        }
+        else {
+            return false;
+        }
+
+
+    }
+    class MyTask extends AsyncTask<String, String, String> {
         @Override
-        protected void onPreExecute (){
-            Log.d("PreExceute", "On pre Exceute......");
+        protected void onPreExecute() {
+            updateDisplay("starting task");
+            if (tasks.size() == 0) {
+                Log.i("PreExceute", "On pre Exceute......");
+                pb.setVisibility(View.VISIBLE);
+            }
+            tasks.add(this);
+        }
 
         @Override
         protected String doInBackground(String... params) {
-            return null;
+           String content= HttpManager.getData(params[0]);
+            return content;
         }
-
+        @Override
+        protected void onProgressUpdate(String... values) {
+            updateDisplay(values[0]);
         }
-
         @Override
         protected void onPostExecute(String result) {
+            updateDisplay(result);
+            tasks.remove(this);
+            if (tasks.size() == 0) {
+                Log.i("PostExceute", result);
+                pb.setVisibility(View.INVISIBLE );
+            }
+
 
         }
+
+
     }
 
+    public void doMyTask(View view) {
+        if (isOnline()) {
+            requestData(baseUrl);
+        }
+        else {
+            Toast.makeText(this, "Network isn't available", Toast.LENGTH_LONG).show();
+        }
+        updateDisplay("My Task");
+    }
+
+    private void requestData(String uri) {
+        MyTask task = new MyTask();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,uri);
+    }
+
+    public void updateDisplay(String message) {
+output.append(message +"\n");
+    }
 }
