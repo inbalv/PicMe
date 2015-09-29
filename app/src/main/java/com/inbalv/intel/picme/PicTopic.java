@@ -6,14 +6,17 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.os.AsyncTask;
@@ -28,11 +31,12 @@ import java.util.List;
 
 import javax.xml.transform.Result;
 
-public class PicTopic extends ListActivity {
+public class PicTopic extends AppCompatActivity {
 
     ProgressBar pb;
     List<MyTask> tasks;
     List<PictureInfo> pictureList;
+    ListView myList;
     final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
 
     @Override
@@ -47,14 +51,17 @@ public class PicTopic extends ListActivity {
         pb = (ProgressBar) findViewById(R.id.progressBar1);
         pb.setVisibility(View.INVISIBLE);
         tasks = new ArrayList<>();
+        myList=(ListView) findViewById(R.id.myList);
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_pic_topic, menu);
-        return true;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_pic_topic, menu);
+        return super.onCreateOptionsMenu(menu)
+       ;
     }
 
     @Override
@@ -65,7 +72,8 @@ public class PicTopic extends ListActivity {
 
 
         //noinspection SimplifiableIfStatement
-        if (item.getItemId()== R.id.action_settings) {
+        int id = item.getItemId();
+        if (id== R.id.action_set) {
             if (isOnline()) {
                 requestData(baseUrl);
 
@@ -137,7 +145,7 @@ public class PicTopic extends ListActivity {
 
     protected void updateDisplay() {
     PicAdaptor adapter=new PicAdaptor(this,R.layout.item_pic, pictureList);
-        setListAdapter(adapter);
+        myList.setAdapter(adapter);
 
             }
         };
