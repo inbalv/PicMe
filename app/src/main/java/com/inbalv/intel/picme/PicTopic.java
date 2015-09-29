@@ -104,7 +104,7 @@ public class PicTopic extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
       //      updateDisplay("starting task");
-            if (tasks.size() == 0) {
+            if (tasks.isEmpty()) {
                 Log.i("PreExceute", "On pre Exceute......");
                 pb.setVisibility(View.VISIBLE);
             }
@@ -125,7 +125,7 @@ public class PicTopic extends AppCompatActivity {
             pictureList= PicJSONParser.parseFeed(result);
             updateDisplay();
             tasks.remove(this);
-            if (tasks.size() == 0) {
+            if (tasks.isEmpty()) {
                 Log.i("PostExceute", result);
                 pb.setVisibility(View.INVISIBLE );
             }
