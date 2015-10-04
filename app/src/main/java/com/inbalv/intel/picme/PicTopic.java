@@ -1,35 +1,28 @@
 package com.inbalv.intel.picme;
 
-import android.app.ListActivity;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.inbalv.intel.picme.model.PictureInfo;
 import com.inbalv.intel.picme.parsers.PicJSONParser;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.transform.Result;
 
 public class PicTopic extends AppCompatActivity {
 
@@ -37,12 +30,16 @@ public class PicTopic extends AppCompatActivity {
     List<MyTask> tasks;
     List<PictureInfo> pictureList;
     ListView myList;
-    final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
+    public String imageTag;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pic_topic);
+
+        Bundle selTag = getIntent().getExtras();
+        imageTag = selTag.getString("selectedTag");
 
 
        //final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags=love&per_page=9&format=json";
@@ -70,7 +67,7 @@ public class PicTopic extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-
+        final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags="+imageTag+"&per_page=12&format=json";
         //noinspection SimplifiableIfStatement
         int id = item.getItemId();
         if (id== R.id.action_set) {
@@ -100,7 +97,7 @@ public class PicTopic extends AppCompatActivity {
 
 
     }
-    class MyTask extends AsyncTask<String, String, String> {
+    class MyTask extends AsyncTask<String, String, List<PictureInfo>> {
         @Override
         protected void onPreExecute() {
       //      updateDisplay("starting task");
@@ -112,25 +109,39 @@ public class PicTopic extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected List<PictureInfo> doInBackground(String... params) {
+            Log.i("doInBack-params",  params[0]);
            String content= HttpManager.getData(params[0]);
-            return content;
+            Log.i("doInBack=content", content);
+            pictureList= PicJSONParser.parseFeed(content);
+
+            for (PictureInfo pictureInfo:pictureList){
+                BitBuilder bitmapBulider=new BitBuilder();
+                Bitmap bitmap=(bitmapBulider.getBitmapFromURL(pictureInfo.myImageURL()));
+                pictureInfo.setBitmap(bitmap);
+            }
+            return pictureList;
         }
         @Override
         protected void onProgressUpdate(String... values) {
    //         updateDisplay(values[0]);
         }
         @Override
-        protected void onPostExecute(String result) {
-            pictureList= PicJSONParser.parseFeed(result);
-            updateDisplay();
-            tasks.remove(this);
-            if (tasks.isEmpty()) {
-                Log.i("PostExceute", result);
-                pb.setVisibility(View.INVISIBLE );
+        protected void onPostExecute(List<PictureInfo> result) {
+          //  Log.i("PostExceute", result);
+
+            if (result!=null) {
+                updateDisplay();
+                tasks.remove(this);
+                if (tasks.isEmpty()) {
+
+                    pb.setVisibility(View.INVISIBLE);
+
+                }
+
+            }else{
+                Log.i("PostExceute", "picturelist is null");
             }
-
-
 
         }
 

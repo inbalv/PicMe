@@ -1,5 +1,7 @@
 package com.inbalv.intel.picme.model;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by intel on 28/09/2015.
  */
@@ -13,6 +15,9 @@ public class PictureInfo {
     private String ispublic;
     private String isfriend;
     private String isfamily;
+    public  String imageURL;
+    public Bitmap bitmap;
+
 
 
     public String getIspublic() {
@@ -87,6 +92,22 @@ public class PictureInfo {
         this.isfamily = isfamily;
     }
 
+    public String getImageURL() {
+        imageURL = ("https://farm"+farm+".staticflickr.com/"+server+"/"+id+"_"+secret+"_q.jpg");
+        return imageURL; }
 
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+    public String myImageURL() {
 
+        return imageURL; }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
 }

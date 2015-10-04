@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         String selectedTopic = String.valueOf(parent.getItemAtPosition(position));
                         Toast.makeText(MainActivity.this, selectedTopic, Toast.LENGTH_SHORT).show();
+                        topicInt.putExtra("selectedTag", selectedTopic);
                         startActivity(topicInt);
 
                     }
