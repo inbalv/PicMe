@@ -67,7 +67,7 @@ public class PicTopic extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags="+imageTag+"&per_page=20&format=json";
+        final String baseUrl = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7cac09213fb9d08d6efbc2aeb8a3f223&tags="+imageTag+"&per_page=100&format=json";
         //noinspection SimplifiableIfStatement
         int id = item.getItemId();
         if (id== R.id.action_set) {
